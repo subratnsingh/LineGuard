@@ -757,7 +757,7 @@ def get_vegetation_risk_():
         #Find points along transmission lines within radius
         geojson_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources', 'ustrlines.geojson')
         interval = 3000  # feet
-        points = extract_powerline_points(geojson_file,lat,lon,radius_mi,interval)
+        points, extraction_stats = extract_powerline_points(geojson_file, lat, lon, radius_mi, interval, return_stats=True)
         
         # For each point along powerline determine  vegetation height
         towers = []  # Initialize towers list
@@ -808,6 +808,7 @@ def get_vegetation_risk_():
             })
             
         alert_count = sum(1 for t in towers if t['risk_level'] == 'high')
+        moderate_count = sum(1 for t in towers if t['risk_level'] == 'moderate')
         
         # Calculate average kV rating (only numeric values, exclude 'Unknown')
         avg_kv = [t['kv_rating'] for t in towers if isinstance(t['kv_rating'], (int, float))]
@@ -822,11 +823,18 @@ def get_vegetation_risk_():
                 'critical_alerts': alert_count,
                 'risk_distribution': {
                     'low': sum(1 for t in towers if t['risk_level'] == 'low'),
-                    'moderate': sum(1 for t in towers if t['risk_level'] == 'moderate'),
+                    'moderate': moderate_count,
                     'high': sum(1 for t in towers if t['risk_level'] == 'high')
                 },
                 'avg_vegetation_height': round(sum(t['veg_height_m'] for t in towers) / len(towers), 2) if towers else 0,
                 'avg_kv_rating': round(sum(avg_kv) / len(avg_kv), 0) if avg_kv else 'Unknown'
+            },
+            'analysis_summary': {
+                'lines_processed': extraction_stats['lines_processed'],
+                'lines_in_radius': extraction_stats['lines_in_radius'],
+                'coordinates_analyzed': extraction_stats['total_points'],
+                'medium_alerts': moderate_count,
+                'high_alerts': alert_count
             },
             'source': 'FireGuardAI Transmission Infrastructure Monitor',
             'data_source': 'real - extracted from USGS transmission line data',
@@ -834,6 +842,7 @@ def get_vegetation_risk_():
         }
         
         print(f"✅ Generated {len(points)} points along transmission lines and found ({alert_count} alerts)")
+        print(f"📊 Analysis Summary: {result['analysis_summary']}")
         return jsonify(result)
         
     except Exception as e:

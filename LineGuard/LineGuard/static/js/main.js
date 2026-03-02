@@ -596,6 +596,9 @@ document.getElementById('goBtn').addEventListener('click', async () => {
         const response = await fetch(`/api/detect_vegetation_risk?lat=${targetLat}&lon=${targetLon}&radius=15`);
         const data = await response.json();
         
+        console.log('API Response:', data);
+        console.log('Has analysis_summary:', !!data.analysis_summary);
+        
         // Clear old transmission tower markers
         transmissionTowerMarkers.forEach(marker => map.removeLayer(marker));
         transmissionTowerMarkers = [];
@@ -727,6 +730,30 @@ document.getElementById('goBtn').addEventListener('click', async () => {
             }
         } else {
             alertItemsElement.innerHTML = '<div style="text-align: center; color: #64748b; padding: 10px;"><i class="fas fa-info-circle"></i><br>No transmission towers found in this area</div>';
+        }
+        
+        // Show analysis summary modal (regardless of whether towers were found)
+        if (data.analysis_summary) {
+            console.log('Analysis summary data:', data.analysis_summary);
+            const summary = data.analysis_summary;
+            document.getElementById('modalLinesProcessed').innerText = summary.lines_processed || 0;
+            document.getElementById('modalLinesInRadius').innerText = summary.lines_in_radius || 0;
+            document.getElementById('modalCoordinatesAnalyzed').innerText = summary.coordinates_analyzed || 0;
+            document.getElementById('modalMediumAlerts').innerText = summary.medium_alerts || 0;
+            document.getElementById('modalHighAlerts').innerText = summary.high_alerts || 0;
+            
+            // Show the modal
+            try {
+                const modalElement = document.getElementById('analysisModal');
+                console.log('Modal element found:', modalElement);
+                const modal = new bootstrap.Modal(modalElement);
+                console.log('Showing modal...');
+                modal.show();
+            } catch (modalError) {
+                console.error('Error showing modal:', modalError);
+            }
+        } else {
+            console.log('No analysis_summary in response:', data);
         }
     } catch (error) {
         console.error('Error fetching transmission towers:', error);
