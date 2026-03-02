@@ -800,7 +800,7 @@ def get_vegetation_risk_():
                 'point_id': f'P-{i+1:03d}',
                 'latitude': round(line_lat, 6),
                 'longitude': round(line_lon, 6),
-                'veg_height_m': vegetation_height_m,
+                'veg_height_m': round(vegetation_height_m, 2),
                 'clearance_m': clearance,
                 'line_height_m': line_height,
                 'kv_rating': int(kv_numeric) if kv_numeric else 'Unknown',

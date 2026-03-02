@@ -657,7 +657,7 @@ document.getElementById('goBtn').addEventListener('click', async () => {
                         <strong style="font-size: 1em; color: #1e293b;">⚡ ${tower.point_id}</strong> ${alertBadge}<br>
                         <div style="margin-top: 4px; padding: 4px 0; border-top: 1px solid #e2e8f0;">
                             ${riskLabels[tower.risk_level]}<br>
-                            <i class="fas fa-tree"></i> Vegetation Height: <strong>${tower.veg_height_m}m</strong><br>
+                            <i class="fas fa-tree"></i> Vegetation Height: <strong>${parseFloat(tower.veg_height_m).toFixed(2)}m</strong><br>
                             <i class="fas fa-arrows-alt-v"></i> Line Height: <strong>${tower.line_height_m}m</strong><br>
                             <i class="fas fa-ruler-vertical"></i> Clearance: <strong>${tower.clearance_m}m</strong><br>
                             <i class="fas fa-bolt"></i> kV Rating: <strong>${tower.kv_rating}kV</strong><br>
@@ -701,7 +701,7 @@ document.getElementById('goBtn').addEventListener('click', async () => {
                     <div style="font-family: 'Poppins', sans-serif; padding: 8px; max-width: 280px;">
                         <strong style="font-size: 1em; color: #10b981;">🟢 Low Risk - ${point.point_id}</strong><br>
                         <div style="margin-top: 4px; padding: 4px 0; border-top: 1px solid #e2e8f0;">
-                            <i class="fas fa-tree"></i> Vegetation Height: <strong>${point.veg_height_m}m</strong><br>
+                            <i class="fas fa-tree"></i> Vegetation Height: <strong>${parseFloat(point.veg_height_m).toFixed(2)}m</strong><br>
                             <i class="fas fa-arrows-alt-v"></i> Line Height: <strong>${point.line_height_m}m</strong><br>
                             <i class="fas fa-ruler-vertical"></i> Clearance: <strong>${point.clearance_m}m</strong><br>
                             <i class="fas fa-bolt"></i> kV Rating: <strong>${point.kv_rating}kV</strong><br>
