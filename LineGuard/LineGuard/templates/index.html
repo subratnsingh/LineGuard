@@ -100,12 +100,12 @@
         <ul class="nav nav-tabs mb-3" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="tab1-btn" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab">
-                    City Focus
+                    Monitor
                 </button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="tab2-btn" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab">
-                    Predictor
+                    Predict
                 </button>
             </li>
         </ul>
@@ -114,8 +114,6 @@
         <div class="tab-content">
             <!-- Tab 1: Focus on City or Coordinate -->
             <div class="tab-pane fade show active" id="tab1" role="tabpanel">
-                <h3 class="mb-3"><i class="fas fa-broadcast-tower"></i> Monitor Transmission Towers</h3>
-
                 <label for="citySelect" class="form-label fw-bold"><i class="fas fa-city"></i> Select City</label>
                 <select id="citySelect" class="form-select mb-3 modern-input">
                     <option value="">-- Select City --</option>
@@ -173,13 +171,13 @@
                 </div>
 
                 <button id="goBtn" class="button-17 w-100">
-                    <i class="fas fa-search"></i> Scan Area
+                    <i class="fas fa-search"></i> Detect Vegetation Risk
                 </button>
 
                 <!-- Tower Monitoring Info -->
                 <div id="alertsBox" class="alert-list mt-3">
                     <h6 class="fw-bold"><i class="fas fa-broadcast-tower"></i> Tower Monitoring</h6>
-                    <div id="alertItems">Select a city or enter coordinates to scan transmission towers with vegetation risk metrics</div>
+                    <div id="alertItems">Select a city or enter coordinates to scan power lines with vegetation risk.</div>
                 </div>
             </div>
 
