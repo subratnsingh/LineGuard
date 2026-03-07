@@ -220,24 +220,31 @@ async function updateMapByDate(dateStr) {
             markerLabel = '⚠';
         }
 
+        const isLowRisk = riskLevel === 'low';
+        const bubbleSize = isLowRisk ? 6 : 30;
+        const bubbleAnchor = isLowRisk ? 3 : 15;
+        const bubbleBorder = isLowRisk ? '1px' : '3px';
+        const bubbleFontSize = isLowRisk ? '0px' : '16px';
+        const bubbleLabel = isLowRisk ? '' : markerLabel;
+
         const zoneIcon = L.divIcon({
             className: 'clean-marker',
             html: `<div style="
             background-color: ${markerColor}; 
-                width: 30px; 
-                height: 30px; 
+                width: ${bubbleSize}px; 
+                height: ${bubbleSize}px; 
                 border-radius: 50%; 
-                border: 3px solid white; 
+                border: ${bubbleBorder} solid white; 
                 box-shadow: 0 3px 8px rgba(0,0,0,0.3);
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 color: white;
                 font-weight: bold;
-                font-size: 16px;
-            ">${markerLabel}</div>`,
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
+                font-size: ${bubbleFontSize};
+            ">${bubbleLabel}</div>`,
+            iconSize: [bubbleSize, bubbleSize],
+            iconAnchor: [bubbleAnchor, bubbleAnchor]
         });
 
         const marker = L.marker([centerLat, centerLon], { icon: zoneIcon }).addTo(map);
@@ -620,24 +627,31 @@ document.getElementById('goBtn').addEventListener('click', async () => {
                     markerLabel = '⚡';
                 }
 
+                const isTowerLowRisk = tower.risk_level === 'low';
+                const towerBubbleSize = isTowerLowRisk ? 6 : 28;
+                const towerBubbleAnchor = isTowerLowRisk ? 3 : 14;
+                const towerBubbleBorder = isTowerLowRisk ? '1px' : '3px';
+                const towerBubbleFontSize = isTowerLowRisk ? '0px' : '14px';
+                const towerBubbleLabel = isTowerLowRisk ? '' : markerLabel;
+
                 const towerIcon = L.divIcon({
                     className: 'clean-marker',
                     html: `<div style="
                         background-color: ${markerColor}; 
-                        width: 28px; 
-                        height: 28px; 
+                        width: ${towerBubbleSize}px; 
+                        height: ${towerBubbleSize}px; 
                         border-radius: 50%; 
-                        border: 3px solid white; 
+                        border: ${towerBubbleBorder} solid white; 
                         box-shadow: 0 3px 8px rgba(0,0,0,0.3);
                         display: flex;
                         align-items: center;
                         justify-content: center;
                         color: white;
                         font-weight: bold;
-                        font-size: 14px;
-                    ">${markerLabel}</div>`,
-                    iconSize: [28, 28],
-                    iconAnchor: [14, 14]
+                        font-size: ${towerBubbleFontSize};
+                    ">${towerBubbleLabel}</div>`,
+                    iconSize: [towerBubbleSize, towerBubbleSize],
+                    iconAnchor: [towerBubbleAnchor, towerBubbleAnchor]
                 });
 
                 const marker = L.marker([tower.latitude, tower.longitude], { icon: towerIcon }).addTo(map);
