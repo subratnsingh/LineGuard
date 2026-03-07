@@ -220,24 +220,31 @@ async function updateMapByDate(dateStr) {
             markerLabel = '⚠';
         }
 
+        const isLowRisk = riskLevel === 'low';
+        const bubbleSize = isLowRisk ? 6 : 30;
+        const bubbleAnchor = isLowRisk ? 3 : 15;
+        const bubbleBorder = isLowRisk ? '1px' : '3px';
+        const bubbleFontSize = isLowRisk ? '0px' : '16px';
+        const bubbleLabel = isLowRisk ? '' : markerLabel;
+
         const zoneIcon = L.divIcon({
             className: 'clean-marker',
             html: `<div style="
             background-color: ${markerColor}; 
-                width: 30px; 
-                height: 30px; 
+                width: ${bubbleSize}px; 
+                height: ${bubbleSize}px; 
                 border-radius: 50%; 
-                border: 3px solid white; 
+                border: ${bubbleBorder} solid white; 
                 box-shadow: 0 3px 8px rgba(0,0,0,0.3);
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 color: white;
                 font-weight: bold;
-                font-size: 16px;
-            ">${markerLabel}</div>`,
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
+                font-size: ${bubbleFontSize};
+            ">${bubbleLabel}</div>`,
+            iconSize: [bubbleSize, bubbleSize],
+            iconAnchor: [bubbleAnchor, bubbleAnchor]
         });
 
         const marker = L.marker([centerLat, centerLon], { icon: zoneIcon }).addTo(map);
@@ -596,12 +603,16 @@ document.getElementById('goBtn').addEventListener('click', async () => {
         const response = await fetch(`/api/detect_vegetation_risk?lat=${targetLat}&lon=${targetLon}&radius=15`);
         const data = await response.json();
         
+        console.log('API Response:', data);
+        console.log('Has analysis_summary:', !!data.analysis_summary);
+        
         // Clear old transmission tower markers
         transmissionTowerMarkers.forEach(marker => map.removeLayer(marker));
         transmissionTowerMarkers = [];
         
         // Draw transmission towers on map with risk metrics
         if (data.towers && data.towers.length > 0) {
+            console.log(`Found ${data.towers.length} moderate/high risk towers:`, data.towers);
             data.towers.forEach(tower => {
                 // Determine marker color based on risk level
                 let markerColor, markerLabel;
@@ -616,24 +627,31 @@ document.getElementById('goBtn').addEventListener('click', async () => {
                     markerLabel = '⚡';
                 }
 
+                const isTowerLowRisk = tower.risk_level === 'low';
+                const towerBubbleSize = isTowerLowRisk ? 6 : 28;
+                const towerBubbleAnchor = isTowerLowRisk ? 3 : 14;
+                const towerBubbleBorder = isTowerLowRisk ? '1px' : '3px';
+                const towerBubbleFontSize = isTowerLowRisk ? '0px' : '14px';
+                const towerBubbleLabel = isTowerLowRisk ? '' : markerLabel;
+
                 const towerIcon = L.divIcon({
                     className: 'clean-marker',
                     html: `<div style="
                         background-color: ${markerColor}; 
-                        width: 28px; 
-                        height: 28px; 
+                        width: ${towerBubbleSize}px; 
+                        height: ${towerBubbleSize}px; 
                         border-radius: 50%; 
-                        border: 3px solid white; 
+                        border: ${towerBubbleBorder} solid white; 
                         box-shadow: 0 3px 8px rgba(0,0,0,0.3);
                         display: flex;
                         align-items: center;
                         justify-content: center;
                         color: white;
                         font-weight: bold;
-                        font-size: 14px;
-                    ">${markerLabel}</div>`,
-                    iconSize: [28, 28],
-                    iconAnchor: [14, 14]
+                        font-size: ${towerBubbleFontSize};
+                    ">${towerBubbleLabel}</div>`,
+                    iconSize: [towerBubbleSize, towerBubbleSize],
+                    iconAnchor: [towerBubbleAnchor, towerBubbleAnchor]
                 });
 
                 const marker = L.marker([tower.latitude, tower.longitude], { icon: towerIcon }).addTo(map);
@@ -647,26 +665,71 @@ document.getElementById('goBtn').addEventListener('click', async () => {
                 
                 const alertBadge = tower.alert ? '<span style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7em;">🚨 ALERT</span>' : '';
                 
+                // Normalized tooltip showing consistent data across all risk levels
                 marker.bindTooltip(`
-                    <div style="font-family: 'Poppins', sans-serif; padding: 8px; max-width: 300px;">
-                        <strong style="font-size: 1.1em; color: #1e293b;">⚡ Tower ${tower.tower_id}</strong> ${alertBadge}<br>
+                    <div style="font-family: 'Poppins', sans-serif; padding: 8px; max-width: 280px;">
+                        <strong style="font-size: 1em; color: #1e293b;">⚡ ${tower.point_id}</strong> ${alertBadge}<br>
                         <div style="margin-top: 4px; padding: 4px 0; border-top: 1px solid #e2e8f0;">
-                            Risk Level: ${riskLabels[tower.risk_level]}<br>
-                            <i class="fas fa-tree"></i> Vegetation: <strong>${tower.veg_height_m}m</strong><br>
+                            ${riskLabels[tower.risk_level]}<br>
+                            <i class="fas fa-tree"></i> Vegetation Height: <strong>${parseFloat(tower.veg_height_m).toFixed(2)}m</strong><br>
+                            <i class="fas fa-arrows-alt-v"></i> Line Height: <strong>${tower.line_height_m}m</strong><br>
                             <i class="fas fa-ruler-vertical"></i> Clearance: <strong>${tower.clearance_m}m</strong><br>
-                            <i class="fas fa-chart-line"></i> Growth: <strong>${tower.growth_rate_cm_day} cm/day</strong><br>
-                            <i class="fas fa-calendar-alt"></i> Breach: <strong>${tower.days_until_breach} days</strong><br>
-                            <small style="color: #64748b;"><i class="fas fa-bolt"></i> ${tower.owner} | ${tower.voltage}</small><br>
-                            <small style="color: #64748b;"><i class="fas fa-tools"></i> ${tower.structure_type}</small><br>
-                            <small style="color: #94a3b8; font-style: italic;">Last inspected: ${tower.last_inspection}</small>
+                            <i class="fas fa-bolt"></i> kV Rating: <strong>${tower.kv_rating}kV</strong><br>
+                            <i class="fas fa-exclamation-triangle"></i> Powerline Status: <strong>${tower.risk_level.charAt(0).toUpperCase() + tower.risk_level.slice(1)} Risk</strong>
                         </div>
                     </div>
                 `, { sticky: true });
                 
                 transmissionTowerMarkers.push(marker);
             });
-            
-            // Update info panel with statistics
+        }
+        
+        // Draw low risk points as small green icons
+        if (data.low_risk_points && data.low_risk_points.length > 0) {
+            console.log(`Found ${data.low_risk_points.length} low risk points:`, data.low_risk_points);
+            data.low_risk_points.forEach(point => {
+                const lowRiskIcon = L.divIcon({
+                    className: 'clean-marker',
+                    html: `<div style="
+                        background-color: #10b981; 
+                        width: 18px; 
+                        height: 18px; 
+                        border-radius: 50%; 
+                        border: 2px solid white; 
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        font-weight: bold;
+                        font-size: 10px;
+                    ">✓</div>`,
+                    iconSize: [18, 18],
+                    iconAnchor: [9, 9]
+                });
+
+                const marker = L.marker([point.latitude, point.longitude], { icon: lowRiskIcon }).addTo(map);
+                
+                // Tooltip with point metrics
+                marker.bindTooltip(`
+                    <div style="font-family: 'Poppins', sans-serif; padding: 8px; max-width: 280px;">
+                        <strong style="font-size: 1em; color: #10b981;">🟢 Low Risk - ${point.point_id}</strong><br>
+                        <div style="margin-top: 4px; padding: 4px 0; border-top: 1px solid #e2e8f0;">
+                            <i class="fas fa-tree"></i> Vegetation Height: <strong>${parseFloat(point.veg_height_m).toFixed(2)}m</strong><br>
+                            <i class="fas fa-arrows-alt-v"></i> Line Height: <strong>${point.line_height_m}m</strong><br>
+                            <i class="fas fa-ruler-vertical"></i> Clearance: <strong>${point.clearance_m}m</strong><br>
+                            <i class="fas fa-bolt"></i> kV Rating: <strong>${point.kv_rating}kV</strong><br>
+                            <i class="fas fa-check-circle"></i> Powerline Status: <strong style="color: #10b981;">Low Risk</strong>
+                        </div>
+                    </div>
+                `, { sticky: true });
+                
+                transmissionTowerMarkers.push(marker);
+            });
+        }
+        
+        // Update info panel with statistics
+        if (data.towers && data.towers.length > 0) {
             const stats = data.statistics;
             const sourceNote = data.data_source === 'simulated' ? '<br><em style="font-size: 0.55rem; color: #94a3b8;">Demo Mode - Production connects to utility SCADA systems</em>' : '';
             alertItemsElement.innerHTML = `
@@ -727,6 +790,30 @@ document.getElementById('goBtn').addEventListener('click', async () => {
             }
         } else {
             alertItemsElement.innerHTML = '<div style="text-align: center; color: #64748b; padding: 10px;"><i class="fas fa-info-circle"></i><br>No transmission towers found in this area</div>';
+        }
+        
+        // Show analysis summary modal (regardless of whether towers were found)
+        if (data.analysis_summary) {
+            console.log('Analysis summary data:', data.analysis_summary);
+            const summary = data.analysis_summary;
+            document.getElementById('modalLinesProcessed').innerText = summary.lines_processed || 0;
+            document.getElementById('modalLinesInRadius').innerText = summary.lines_in_radius || 0;
+            document.getElementById('modalCoordinatesAnalyzed').innerText = summary.coordinates_analyzed || 0;
+            document.getElementById('modalMediumAlerts').innerText = summary.medium_alerts || 0;
+            document.getElementById('modalHighAlerts').innerText = summary.high_alerts || 0;
+            
+            // Show the modal
+            try {
+                const modalElement = document.getElementById('analysisModal');
+                console.log('Modal element found:', modalElement);
+                const modal = new bootstrap.Modal(modalElement);
+                console.log('Showing modal...');
+                modal.show();
+            } catch (modalError) {
+                console.error('Error showing modal:', modalError);
+            }
+        } else {
+            console.log('No analysis_summary in response:', data);
         }
     } catch (error) {
         console.error('Error fetching transmission towers:', error);

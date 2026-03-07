@@ -100,12 +100,12 @@
         <ul class="nav nav-tabs mb-3" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="tab1-btn" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab">
-                    City Focus
+                    Monitor
                 </button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="tab2-btn" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab">
-                    Predictor
+                    Predict
                 </button>
             </li>
         </ul>
@@ -114,8 +114,6 @@
         <div class="tab-content">
             <!-- Tab 1: Focus on City or Coordinate -->
             <div class="tab-pane fade show active" id="tab1" role="tabpanel">
-                <h3 class="mb-3"><i class="fas fa-broadcast-tower"></i> Monitor Transmission Towers</h3>
-
                 <label for="citySelect" class="form-label fw-bold"><i class="fas fa-city"></i> Select City</label>
                 <select id="citySelect" class="form-select mb-3 modern-input">
                     <option value="">-- Select City --</option>
@@ -173,13 +171,16 @@
                 </div>
 
                 <button id="goBtn" class="button-17 w-100">
-                    <i class="fas fa-search"></i> Scan Area
+                    <i class="fas fa-search"></i> Detect Vegetation Risk
                 </button>
+                <small class="d-block text-center mt-2 text-muted">
+                    <i class="fas fa-info-circle"></i> Select a city or enter coordinates to scan power lines with vegetation risk.
+                </small>
 
                 <!-- Tower Monitoring Info -->
                 <div id="alertsBox" class="alert-list mt-3">
                     <h6 class="fw-bold"><i class="fas fa-broadcast-tower"></i> Tower Monitoring</h6>
-                    <div id="alertItems">Select a city or enter coordinates to scan transmission towers with vegetation risk metrics</div>
+                    <div id="alertItems">No scan results yet. Use the button above to analyze an area.</div>
                 </div>
             </div>
 
@@ -216,11 +217,64 @@
         </div>
     </div>
 
+    <!-- Analysis Results Modal -->
+    <div class="modal fade" id="analysisModal" tabindex="-1" aria-labelledby="analysisModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 12px;">
+                <div class="modal-header" style="border-bottom: 2px solid #6366f1;">
+                    <h5 class="modal-title" id="analysisModalLabel">
+                        <i class="fas fa-chart-bar"></i> Analysis Complete
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="p-3 text-center" style="background: rgba(99, 102, 241, 0.1); border-radius: 8px;">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: #6366f1;" id="modalLinesProcessed">0</div>
+                                <div style="font-size: 0.75rem; color: #64748b;">Total Lines Processed</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 text-center" style="background: rgba(99, 102, 241, 0.1); border-radius: 8px;">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: #6366f1;" id="modalLinesInRadius">0</div>
+                                <div style="font-size: 0.75rem; color: #64748b;">Lines Within Radius</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 text-center" style="background: rgba(99, 102, 241, 0.1); border-radius: 8px;">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: #6366f1;" id="modalCoordinatesAnalyzed">0</div>
+                                <div style="font-size: 0.75rem; color: #64748b;">Co-ordinates Analyzed</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 text-center" style="background: rgba(245, 158, 11, 0.1); border-radius: 8px;">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: #f59e0b;" id="modalMediumAlerts">0</div>
+                                <div style="font-size: 0.75rem; color: #64748b;"># of Medium Alerts Found</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 text-center" style="background: rgba(239, 68, 68, 0.1); border-radius: 8px; border: 2px solid #ef4444;">
+                                <div style="font-size: 2rem; font-weight: bold; color: #ef4444;" id="modalHighAlerts">0</div>
+                                <div style="font-size: 0.85rem; color: #64748b; font-weight: 600;"># of High Alerts Found</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid rgba(99, 102, 241, 0.2);">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" style="background: #6366f1; border: none;">
+                        <i class="fas fa-check"></i> Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/static/js/main.js?v=1037.0"></script>
+    <script src="/static/js/main.js?v=1042.0"></script>
 </body>
 
 </html>

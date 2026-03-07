@@ -83,16 +83,26 @@ def extract_powerline_points(geojson_file: str,
                             center_lon: float,
                             radius_miles: float = 10,
                             interval_feet: float = 3000,
-                            verbose: bool = True) -> List[dict]:  # Changed return type
+                            verbose: bool = True,
+                            return_stats: bool = False):
     """
     Extract points along power transmission lines within a radius.
     
+    Args:
+        return_stats: If True, returns (points, stats) tuple instead of just points
+    
     Returns:
-        List of dicts with format:
+        If return_stats=False: List of dicts with format:
         {
             'lat': float,
             'lon': float,
             'properties': dict  # includes kV rating and other feature properties
+        }
+        If return_stats=True: Tuple of (points, stats) where stats contains:
+        {
+            'lines_processed': int,
+            'lines_in_radius': int,
+            'total_points': int
         }
     """
     if verbose:
@@ -168,7 +178,15 @@ def extract_powerline_points(geojson_file: str,
         print(f"Lines within radius: {lines_in_radius}")
         print(f"Total points extracted: {len(all_points)}")
     
-    return all_points
+    if return_stats:
+        stats = {
+            'lines_processed': lines_processed,
+            'lines_in_radius': lines_in_radius,
+            'total_points': len(all_points)
+        }
+        return all_points, stats
+    else:
+        return all_points
 
 
 def main():
